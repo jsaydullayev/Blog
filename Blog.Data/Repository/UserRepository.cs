@@ -1,35 +1,49 @@
 ﻿
+using Blog.Data.Context;
+using Microsoft.EntityFrameworkCore;
+
 namespace Blog.Data.Repository;
 
 public class UserRepository : IUserRepository
 {
-    public Task Add(User user)
+    private readonly ProjectContext _projectContext;
+
+    public UserRepository(ProjectContext projectContext)
     {
-        throw new NotImplementedException();
+        _projectContext = projectContext;
     }
 
-    public Task Delete(User user)
+    public async Task Add(User user)
     {
-        throw new NotImplementedException();
+        _projectContext.Users.Add(user);
+        await _projectContext.SaveChangesAsync();
     }
 
-    public Task<List<User>?> GetAll()
+    public async Task Delete(User user)
     {
-        throw new NotImplementedException();
+        _projectContext.Users.Remove(user);
+        await _projectContext.SaveChangesAsync();
     }
+
+    public Task<List<User>?> GetAll() => _projectContext.Users.ToListAsync();
 
     public Task<User> GetById(Guid id)
     {
-        throw new NotImplementedException();
+        var user = _projectContext.Users.FirstOrDefaultAsync(x => x.Id == id);
+        if (user is null) throw new Exception("User not Found");
+        return user;
     }
 
     public Task<User?> GetByUserName(string username)
     {
-        throw new NotImplementedException();
+        var user = _projectContext.Users.FirstOrDefaultAsync(c => c.Username == username);
+        if (user is null) throw new Exception("User not found");
+        return user;
     }
 
-    public Task Update(User user)
+    public async Task Update(User user)
     {
-        throw new NotImplementedException();
+        _projectContext.Users.Update(user);
+        await _projectContext.SaveChangesAsync();
     }
 }

@@ -1,4 +1,6 @@
 using Blog.Data.Context;
+using Blog.Data.Repository;
+using Blog.Service.Api;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualBasic.CompilerServices;
 
@@ -13,8 +15,12 @@ builder.Services.AddDbContext<ProjectContext>(options =>
 {
     options.UseNpgsql(builder.Configuration.GetConnectionString("BlogDbContext"));
 });
-builder.Services.AddSwaggerGen();
-
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IBlogRepository, BlogRepository>();
+builder.Services.AddScoped<IPostRepository, PostRepository>();
+builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<BlogService>();
+builder.Services.AddScoped<PostService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

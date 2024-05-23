@@ -12,6 +12,7 @@ namespace Blog.Data
         public string LastName { get; set; }
         [Required]
         public string Username { get; set; }
+        [Required]
         public string PasswordHash { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public string? PhotoUrl { get; set; }

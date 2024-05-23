@@ -1,31 +1,39 @@
-﻿using Blog.Data.Entities;
+﻿using Blog.Data.Context;
+using Blog.Data.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace Blog.Data.Repository;
 
 public class PostRepository : IPostRepository
 {
-    public Task<Post> Add(Post post)
+    private readonly ProjectContext _projectContext;
+    public PostRepository(ProjectContext projectContext)
     {
-        throw new NotImplementedException();
+        _projectContext = projectContext;
+    }
+    public async Task<List<Post>?> GetAll() => await _projectContext.Posts.ToListAsync();
+
+    public async Task<Post?> GetById(int id)
+    {
+        var post = await _projectContext.Posts.FirstOrDefaultAsync(p => p.Id == id);
+        return post;
     }
 
-    public Task<Post> DeleteById(int id)
+    public async Task Update(Post post)
     {
-        throw new NotImplementedException();
+        _projectContext.Posts.Update(post);
+        await _projectContext.SaveChangesAsync();
     }
 
-    public Task<List<Post>?> GetAll()
+    async Task IPostRepository.Add(Post post)
     {
-        throw new NotImplementedException();
+        _projectContext.Posts.Add(post);
+        await _projectContext.SaveChangesAsync();
     }
 
-    public Task<Post> GetById(int id)
+    async Task IPostRepository.Delete(Post post)
     {
-        throw new NotImplementedException();
-    }
-
-    public Task<Post> Update(Post post)
-    {
-        throw new NotImplementedException();
+        _projectContext.Posts.Remove(post);
+        await _projectContext.SaveChangesAsync();
     }
 }

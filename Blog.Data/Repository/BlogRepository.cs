@@ -1,35 +1,52 @@
 ﻿
+using Blog.Data.Context;
+using Microsoft.EntityFrameworkCore;
+
 namespace Blog.Data.Repository;
 
 public class BlogRepository : IBlogRepository
 {
-    public Task<Entities.Blog> Add(Entities.Blog blog)
+    private readonly ProjectContext _projectContext;
+    public BlogRepository(ProjectContext projectContext)
     {
-        throw new NotImplementedException();
+        _projectContext = projectContext;
+    }
+    public async Task Add(Entities.Blog blog)
+    {
+        _projectContext.Blogs.Add(blog);
+        await _projectContext.SaveChangesAsync();
     }
 
-    public Task<Entities.Blog> DeleteById(int id)
+    public async Task Delete(Entities.Blog blog)
     {
-        throw new NotImplementedException();
+        _projectContext.Blogs.Remove(blog);
+        await _projectContext.SaveChangesAsync();
     }
 
-    public Task<List<Entities.Blog>?> GetAll()
+
+    public async Task<List<Entities.Blog>?> GetAll()
     {
-        throw new NotImplementedException();
+        var blogs = await _projectContext.Blogs.ToListAsync();
+        return blogs;
     }
 
-    public Task<Entities.Blog> GetById(int id)
+    public async Task<Entities.Blog> GetById(int id)
     {
-        throw new NotImplementedException();
+        var blog = await _projectContext.Blogs.FirstOrDefaultAsync(b => b.Id == id);
+        if (blog is null) throw new Exception("Blog not found!");
+        return blog;
     }
 
-    public Task<Entities.Blog> GetByName(string name)
+    public async Task<Entities.Blog> GetByName(string name)
     {
-        throw new NotImplementedException();
+        var blog = await _projectContext.Blogs.FirstOrDefaultAsync(b => b.Name == name);
+        if (blog is null) throw new Exception("Blog not found!");
+        return blog;
     }
 
-    public Task<Entities.Blog> Update(Entities.Blog blog)
+    public async Task Update(Entities.Blog blog)
     {
-        throw new NotImplementedException();
+        _projectContext.Blogs.Update(blog);
+        await _projectContext.SaveChangesAsync();
     }
 }
