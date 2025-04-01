@@ -21,26 +21,30 @@ public class PostService
     public async Task<List<PostDto>> GetAllPosts()
     {
         var allPosts = await _postRepository.GetAll();
+        if(allPosts is null)
+            throw new Exception("No post found");
         return allPosts.ParseModels();
     }
-    public async Task<PostDto> GetPostById(int postId)
+    public async Task<PostDto> GetPostById(Guid postId)
     {
         var posts = await _postRepository.GetAll();
         var post = posts?.FirstOrDefault(p => p.Id == postId);
         if (post is null) throw new Exception($"The post is not found with\"{postId}\"");
         return post.ParseToModel();
     }
-    public async Task<List<PostDto>> GetAllPosts(Guid userId, int blogId)
+    public async Task<List<PostDto>> GetAllPosts(Guid userId, Guid blogId)
     {
         var posts = await FilteredPosts(userId,blogId);
+        if(posts is null)
+            throw new Exception("No post found");
         return posts.ParseModels();
     }
-    public async Task<PostDto> GetPostById(Guid userId,int blogId,int postId)
+    public async Task<PostDto> GetPostById(Guid userId,Guid blogId,Guid postId)
     {
         var post = await CheckPost(userId, blogId, postId);
         return post.ParseToModel();
     }
-    public async Task<PostDto> AddPost(Guid userId, int blogId,CreatePostModel model)
+    public async Task<PostDto> AddPost(Guid userId, Guid blogId,CreatePostModel model)
     {
         var user = await CheckUser(userId);
         await CheckBlog(userId, blogId);
@@ -54,7 +58,7 @@ public class PostService
         await _postRepository.Add(post);
         return post.ParseToModel();
     }
-    public async Task<PostDto> UpdatePost(Guid userId, int blogId, int postId, UpdatePostModel model) 
+    public async Task<PostDto> UpdatePost(Guid userId, Guid blogId, Guid postId, UpdatePostModel model) 
     {
         var post = await CheckPost(userId,blogId,postId);
         var check = false;
@@ -72,13 +76,22 @@ public class PostService
             await _postRepository.Update(post);
         return post.ParseToModel();
     }
-    public async Task<string> DeletePost(Guid userId, int blogId,int postId)
+    public async Task<string> DeletePost(Guid userId, Guid blogId,Guid postId)
     {
         var post = await CheckPost(userId, blogId, postId);
         await _postRepository.Delete(post);
         return "Deleted successfully";
     }
-    private async Task<List<Post>?> FilteredPosts(Guid userId,int blogId)
+
+    public async Task<List<PostDto>> GetBlogPosts(Guid userId, Guid blogId)
+    {
+        var posts = await FilteredPosts(userId,blogId);
+        if(posts is null)
+            throw new Exception("No post found");
+        return posts.ParseModels();
+    }
+
+    private async Task<List<Post>?> FilteredPosts(Guid userId,Guid blogId)
     {
         var blog = await CheckBlog(userId,blogId);
         var filteredpost = blog.Posts?.Where(post => post.Id == blogId).ToList();
@@ -87,16 +100,18 @@ public class PostService
     private async Task<User> CheckUser(Guid userId)
     {
         var user = await _userRepository.GetById(userId);
+        if(user is null)
+            throw new Exception("User not found");
         return user;
     } 
-    private async Task<Data.Entities.Blog> CheckBlog(Guid userId, int blogId)
+    private async Task<Data.Entities.Blog> CheckBlog(Guid userId, Guid blogId)
     {
         var user = await CheckUser(userId);
         var blog = user.Blogs?.FirstOrDefault(blog => blog.Id == blogId);
         if (blog is null) throw new Exception($"Not found blog with \"{blogId}\"");
         return blog;
     }
-    private async Task<Post> CheckPost(Guid userId,int blogId,int postId)
+    private async Task<Post> CheckPost(Guid userId,Guid blogId,Guid postId)
     {
         var blog = await CheckBlog(userId,blogId);
         var post = blog.Posts?.FirstOrDefault(post => post.Id == postId);

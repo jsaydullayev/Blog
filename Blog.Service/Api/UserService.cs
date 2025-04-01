@@ -1,9 +1,11 @@
 ﻿using Blog.Common.Dtos;
 using Blog.Common.Models.User;
 using Blog.Data;
+using Blog.Data.Entities;
 using Blog.Data.Repository;
 using Blog.Service.Extensions;
 using Microsoft.AspNetCore.Identity;
+using System.Net.Http.Headers;
 namespace Blog.Service.Api;
 public class UserService
 {
@@ -20,6 +22,8 @@ public class UserService
     public async Task<UserDto> GetUserById(Guid Id)
     {
         var user = await _userRepository.GetById(Id);
+        if(user is null)
+            throw new Exception("User not found");
         return user.ParseToModel();
     }
     public async Task<UserDto> AddUser(CreateUserModel model)
@@ -39,10 +43,6 @@ public class UserService
     public async Task<UserDto> UpdateUser(Guid userId, UpdateUserModel model)
     {
         var user = await _userRepository.GetById(userId);
-        if (!string.IsNullOrWhiteSpace(model.FirstName))
-            user.FirstName = model.FirstName;
-        if (!string.IsNullOrWhiteSpace(model.LastName))
-            user.LastName = model.LastName;
         if (!string.IsNullOrWhiteSpace(model.UserName))
         {
             await isExist(model.UserName);

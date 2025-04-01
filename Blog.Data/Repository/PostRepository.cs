@@ -6,34 +6,37 @@ namespace Blog.Data.Repository;
 
 public class PostRepository : IPostRepository
 {
-    private readonly ProjectContext _projectContext;
-    public PostRepository(ProjectContext projectContext)
-    {
-        _projectContext = projectContext;
-    }
-    public async Task<List<Post>?> GetAll() => await _projectContext.Posts.ToListAsync();
+    private readonly BlogDbContext _context;
 
-    public async Task<Post?> GetById(int id)
+    public PostRepository(BlogDbContext context)
     {
-        var post = await _projectContext.Posts.FirstOrDefaultAsync(p => p.Id == id);
+        _context = context;
+    }
+
+    public async Task Add(Post post)
+    {
+        _context.Posts.Add(post);
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task Delete(Post post)
+    {
+        _context.Posts.Remove(post);
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task<List<Post>> GetAll() => await _context.Posts.ToListAsync();
+
+    public async Task<Post> GetById(Guid id)
+    {
+        var post = await _context.Posts.FirstOrDefaultAsync(x => x.Id == id);
+        if (post is null) throw new Exception("Post not Found");
         return post;
     }
 
     public async Task Update(Post post)
     {
-        _projectContext.Posts.Update(post);
-        await _projectContext.SaveChangesAsync();
-    }
-
-    async Task IPostRepository.Add(Post post)
-    {
-        _projectContext.Posts.Add(post);
-        await _projectContext.SaveChangesAsync();
-    }
-
-    async Task IPostRepository.Delete(Post post)
-    {
-        _projectContext.Posts.Remove(post);
-        await _projectContext.SaveChangesAsync();
+        _context.Posts.Update(post);
+        await _context.SaveChangesAsync();
     }
 }

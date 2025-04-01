@@ -13,7 +13,7 @@ public static class ParseToDtoExtension
             Id = user.Id,
             FirstName = user.FirstName,
             LastName = user.LastName,
-            UserName = user.Username,
+            Username = user.Username,
             CreatedAt = user.CreatedAt,
             PhotoUrl = user.PhotoUrl,
             Blogs = user.Blogs.ParseModels()
@@ -23,7 +23,7 @@ public static class ParseToDtoExtension
     {
         if(users  == null || users.Count == 0) return new List<UserDto>();
         var userDtos = new List<UserDto>();
-        foreach( var user in users) 
+        foreach( var user in users)
         {
             userDtos.Add(user.ParseToModel());
         }

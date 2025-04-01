@@ -1,52 +1,47 @@
-﻿
-using Blog.Data.Context;
+﻿using Blog.Data.Context;
+using Blog.Data.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Blog.Data.Repository;
 
 public class BlogRepository : IBlogRepository
 {
-    private readonly ProjectContext _projectContext;
-    public BlogRepository(ProjectContext projectContext)
+    private readonly BlogDbContext _context;
+
+    public BlogRepository(BlogDbContext context)
     {
-        _projectContext = projectContext;
+        _context = context;
     }
+
     public async Task Add(Entities.Blog blog)
     {
-        _projectContext.Blogs.Add(blog);
-        await _projectContext.SaveChangesAsync();
+        _context.Blogs.Add(blog);
+        await _context.SaveChangesAsync();
     }
 
     public async Task Delete(Entities.Blog blog)
     {
-        _projectContext.Blogs.Remove(blog);
-        await _projectContext.SaveChangesAsync();
+        _context.Blogs.Remove(blog);
+        await _context.SaveChangesAsync();
     }
 
+    public async Task<List<Entities.Blog>> GetAll() => await _context.Blogs.ToListAsync();
 
-    public async Task<List<Entities.Blog>?> GetAll()
+    public async Task<Entities.Blog> GetById(Guid id)
     {
-        var blogs = await _projectContext.Blogs.ToListAsync();
-        return blogs;
-    }
-
-    public async Task<Entities.Blog> GetById(int id)
-    {
-        var blog = await _projectContext.Blogs.FirstOrDefaultAsync(b => b.Id == id);
-        if (blog is null) throw new Exception("Blog not found!");
+        var blog = await _context.Blogs.FirstOrDefaultAsync(x => x.Id == id);
+        if (blog is null) throw new Exception("Blog not Found");
         return blog;
     }
 
-    public async Task<Entities.Blog> GetByName(string name)
+    public Task<Entities.Blog?> GetByName(string name)
     {
-        var blog = await _projectContext.Blogs.FirstOrDefaultAsync(b => b.Name == name);
-        if (blog is null) throw new Exception("Blog not found!");
-        return blog;
+        return _context.Blogs.FirstOrDefaultAsync(x => x.Name == name);
     }
 
     public async Task Update(Entities.Blog blog)
     {
-        _projectContext.Blogs.Update(blog);
-        await _projectContext.SaveChangesAsync();
+        _context.Blogs.Update(blog);
+        await _context.SaveChangesAsync();
     }
 }

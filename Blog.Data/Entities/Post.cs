@@ -5,16 +5,23 @@ namespace Blog.Data.Entities
     public class Post
     {
         [Key]
-        public int Id { get; set; }
+        public Guid Id { get; set; }
+
         [Required]
-        public string Title { get; set; }
+        [MaxLength(100)]
+        public required string Title { get; set; }
+
         [Required]
-        public string Content { get; set; }
-        public string FileUrl { get; set; }
+        public required string Content { get; set; }
+
+        public string? FileUrl { get; set; }
+
         public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
+
         [Required]
-        public string AuthorFullName { get; set;}
-        public int BlogId { get; set; }
+        public required string AuthorFullName { get; set; }
+
+        public Guid BlogId { get; set; }
         public Blog? Blog { get; set; }
     }
 }

@@ -3,6 +3,7 @@ using System;
 using Blog.Data.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -10,36 +11,38 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace Blog.Data.Migrations
 {
-    [DbContext(typeof(ProjectContext))]
-    partial class ProjectContextModelSnapshot : ModelSnapshot
+    [DbContext(typeof(BlogDbContext))]
+    [Migration("20250401112941_blogApiMigration")]
+    partial class blogApiMigration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.0-preview.3.24172.4")
+                .HasAnnotation("ProductVersion", "8.0.0")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
             modelBuilder.Entity("Blog.Data.Entities.Blog", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreateDate")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid");
@@ -53,18 +56,16 @@ namespace Blog.Data.Migrations
 
             modelBuilder.Entity("Blog.Data.Entities.Post", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                        .HasColumnType("uuid");
 
                     b.Property<string>("AuthorFullName")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("BlogId")
-                        .HasColumnType("integer");
+                    b.Property<Guid>("BlogId")
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Content")
                         .IsRequired()
@@ -74,12 +75,12 @@ namespace Blog.Data.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("FileUrl")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Title")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.HasKey("Id");
 
@@ -88,7 +89,7 @@ namespace Blog.Data.Migrations
                     b.ToTable("Posts");
                 });
 
-            modelBuilder.Entity("Blog.Data.User", b =>
+            modelBuilder.Entity("Blog.Data.Entities.User", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -99,22 +100,26 @@ namespace Blog.Data.Migrations
 
                     b.Property<string>("FirstName")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
 
                     b.Property<string>("LastName")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
 
                     b.Property<string>("PasswordHash")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.Property<string>("PhotoUrl")
                         .HasColumnType("text");
 
                     b.Property<string>("Username")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.HasKey("Id");
 
@@ -123,7 +128,7 @@ namespace Blog.Data.Migrations
 
             modelBuilder.Entity("Blog.Data.Entities.Blog", b =>
                 {
-                    b.HasOne("Blog.Data.User", "User")
+                    b.HasOne("Blog.Data.Entities.User", "User")
                         .WithMany("Blogs")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -148,7 +153,7 @@ namespace Blog.Data.Migrations
                     b.Navigation("Posts");
                 });
 
-            modelBuilder.Entity("Blog.Data.User", b =>
+            modelBuilder.Entity("Blog.Data.Entities.User", b =>
                 {
                     b.Navigation("Blogs");
                 });

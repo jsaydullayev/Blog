@@ -1,49 +1,47 @@
-﻿
-using Blog.Data.Context;
+﻿using Blog.Data.Context;
+using Blog.Data.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Blog.Data.Repository;
 
 public class UserRepository : IUserRepository
 {
-    private readonly ProjectContext _projectContext;
+    private readonly BlogDbContext _context;
 
-    public UserRepository(ProjectContext projectContext)
+    public UserRepository(BlogDbContext context)
     {
-        _projectContext = projectContext;
+        _context = context;
     }
 
     public async Task Add(User user)
     {
-        _projectContext.Users.Add(user);
-        await _projectContext.SaveChangesAsync();
+        _context.Users.Add(user);
+        await _context.SaveChangesAsync();
     }
 
     public async Task Delete(User user)
     {
-        _projectContext.Users.Remove(user);
-        await _projectContext.SaveChangesAsync();
+        _context.Users.Remove(user);
+        await _context.SaveChangesAsync();
     }
 
-    public Task<List<User>?> GetAll() => _projectContext.Users.ToListAsync();
+    public async Task<List<User>> GetAll() => await _context.Users.ToListAsync();
 
-    public Task<User> GetById(Guid id)
+    public async Task<User> GetById(Guid id)
     {
-        var user = _projectContext.Users.FirstOrDefaultAsync(x => x.Id == id);
+        var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == id);
         if (user is null) throw new Exception("User not Found");
         return user;
     }
 
-    public Task<User?> GetByUserName(string username)
+    public async Task<User?> GetByUserName(string username)
     {
-        var user = _projectContext.Users.FirstOrDefaultAsync(c => c.Username == username);
-        if (user is null) throw new Exception("User not found");
-        return user;
+        return await _context.Users.FirstOrDefaultAsync(c => c.Username == username);
     }
 
     public async Task Update(User user)
     {
-        _projectContext.Users.Update(user);
-        await _projectContext.SaveChangesAsync();
+        _context.Users.Update(user);
+        await _context.SaveChangesAsync();
     }
 }

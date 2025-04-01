@@ -1,6 +1,7 @@
 ﻿using Blog.Common.Dtos;
 using Blog.Common.Models.Blog;
 using Blog.Data;
+using Blog.Data.Entities;
 using Blog.Data.Repository;
 using Blog.Service.Extensions;
 
@@ -15,13 +16,7 @@ namespace Blog.Service.Api
             _blogRepository = blogRepository;
             _userRepository = userRepository;
         }
-        public async Task<List<BlogDto>> GetAllNorRelatedBlogs(Guid userId)
-        {
-            await CheckUser(userId);
-            var blogs = await _blogRepository.GetAll();
-            return blogs.ParseModels();
-        }
-        public async Task<BlogDto> GetNotRelatedBlogById(Guid userId, int blogId)
+        public async Task<BlogDto> GetBlogByUserId(Guid userId, Guid blogId)
         {
             await CheckUser(userId);
             var blog = await _blogRepository.GetById(blogId);
@@ -47,7 +42,7 @@ namespace Blog.Service.Api
             await _blogRepository.Add(blog);
             return blog.ParseToModel();
         }
-        public async Task<BlogDto> UpdateBlog(Guid userId, int blogId, UpdateBlogModel model)
+        public async Task<BlogDto> UpdateBlog(Guid userId, Guid blogId, UpdateBlogModel model)
         {
             var blog = await GetBlogById(userId, blogId);
             var check = false;
@@ -65,7 +60,7 @@ namespace Blog.Service.Api
             if(check) await _blogRepository.Update(blog);
             return blog.ParseToModel();
         }
-        public async Task<string> DeleteBlog(Guid userId,int blogId)
+        public async Task<string> DeleteBlog(Guid userId,Guid blogId)
         {
             var blog = await GetBlogById(userId, blogId);
             await _blogRepository.Delete(blog);
@@ -75,6 +70,7 @@ namespace Blog.Service.Api
         private async Task<User> CheckUser(Guid userId)
         {
             var user = await _userRepository.GetById(userId);
+            if (user is null) throw new Exception("User not found");
             return user;
         }
         private async Task IsExist(string name)
@@ -82,7 +78,7 @@ namespace Blog.Service.Api
             var blog = await _blogRepository.GetByName(name);
             if (blog is not null) throw new Exception($"This name \"{name}\" already exist");
         }
-        private async Task<Data.Entities.Blog> GetBlogById(Guid userId, int blogId)
+        private async Task<Blog.Data.Entities.Blog> GetBlogById(Guid userId, Guid blogId)
         {
             var user = await CheckUser(userId);
             var blog = user.Blogs?.FirstOrDefault(b => b.Id == blogId);
